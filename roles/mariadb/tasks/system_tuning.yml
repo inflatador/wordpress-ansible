@@ -1,0 +1,10 @@
+---
+
+- name: Ensure optimized mariadb config is active
+  template:
+    src: 50-server.cnf.j2
+    dest: /etc/mysql/mariadb.conf.d/50-server.cnf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart mariadb

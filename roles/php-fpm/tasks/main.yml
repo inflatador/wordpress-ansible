@@ -1,0 +1,32 @@
+---
+
+- name: Ensure PHP-FPM is installed
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - "php{{php_vers}}-fpm"
+    - "php{{php_vers}}-dev"
+
+#- name: debug the variable
+#  debug:
+#    var: phpfpm_max_children
+
+
+- name: Ensure pool config is in place
+  template:
+    src: www.conf.j2
+    dest: /etc/php/{{php_vers}}/fpm/pool.d/www.conf
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+
+- name: Ensure PHP-FPM service is restarted to enable new config
+  systemd:
+    name: php{{php_vers}}-fpm
+    state: restarted
+    enabled: yes
+    
+- name: Configure OpCache
+  include: configure_opcache.yml

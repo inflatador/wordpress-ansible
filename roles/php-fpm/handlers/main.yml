@@ -1,0 +1,16 @@
+---
+
+- name: Start PHP-FPM
+  service:
+    name: php{{php_vers}}-fpm
+    state: started
+
+- name: Restart PHP-FPM
+  service:
+    name: php{{php_vers}}-fpm
+    state: restarted
+
+- name: Restart Apache
+  service:
+    name: apache2
+    state: restarted

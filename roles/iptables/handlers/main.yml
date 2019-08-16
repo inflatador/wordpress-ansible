@@ -1,0 +1,6 @@
+---
+
+- name: Activate iptables and ip6tables firewall rules
+  systemd:
+    name: netfilter-persistent
+    state: restarted

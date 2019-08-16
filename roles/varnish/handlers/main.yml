@@ -1,0 +1,7 @@
+---
+
+- name: enable varnish
+  systemd:
+    name: varnish
+    state: started
+    enabled: True

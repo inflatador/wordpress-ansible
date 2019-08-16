@@ -1,0 +1,38 @@
+---
+
+- name: start apache
+  service:
+    name: apache2
+    state: started
+    
+- name: activate apache configuration
+  file: 
+    src: "{{ item.dest }}"
+    dest: "/etc/apache2/conf-enabled/{{ item.item }}.conf"
+    owner: root
+    group: root
+    state: link
+  loop: "{{ conf_created.results|flatten(levels=1) }}"
+
+- name: activate apache module
+  file: 
+    src: "{{ item.dest }}"
+    dest: "/etc/apache2/mods-enabled/{{ item.item }}.conf"
+    owner: root
+    group: root
+    state: link
+  loop: "{{ mods_created.results|flatten(levels=1) }}"
+  when: item.changed
+
+- name: reload apache
+  service:
+    name: apache2
+    state: reloaded
+
+- name: restart apache
+  service:
+    name: apache2
+    state: restarted
+
+
+ 

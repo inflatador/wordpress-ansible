@@ -1,0 +1,109 @@
+---
+
+- name: Ensure Apache is installed
+  package:
+    name: apache2
+    state: present
+    
+# FIXME: every time we add configs to the templates dir, we will have to add it to 
+# the "loop" list here. Is there a way to loop based on everything in the templates dir?
+
+- name: build directory structure for vhost
+  file:
+    state: directory
+    path: "/var/www/vhosts/magento"
+    owner: "{{ magento_os_user }}"
+    group: "{{ magento_os_group }}"
+    mode: 0755
+ 
+- name: Generate an OpenSSL private key
+  openssl_privatekey:
+    path: "/etc/ssl/private/magento.key"
+
+- name: Generate an OpenSSL CSR.
+  openssl_csr:
+    path: "/etc/ssl/certs/magento.csr"
+    privatekey_path: "/etc/ssl/private/magento.key"
+    common_name: "magento.example.com"
+
+- name: Generate self-signed SSL certificate
+  openssl_certificate:
+    path: "/etc/ssl/certs/magento.crt"
+    privatekey_path: "/etc/ssl/private/magento.key"
+    provider: selfsigned
+    csr_path: "/etc/ssl/certs/magento.csr"
+  
+- name: Ensure apache configs are active
+  template:
+    src: "{{ item }}.conf.j2"
+    dest: "/etc/apache2/conf-available/{{ item }}.conf"
+    mode:  0644
+    owner: root
+    group: root
+    backup: true
+  register: conf_created
+  loop:
+    - gzip
+    - "php{{php_vers}}-fpm"
+  notify: 
+   - activate apache configuration
+   - restart apache
+
+- name: Ensure apache module configs are active
+  template:
+    src: "{{ item }}.conf.j2"
+    dest: "/etc/apache2/mods-available/{{ item }}.conf"
+    mode:  0644
+    owner: root
+    group: root
+    backup: true
+  register: mods_created
+  loop:
+    - ssl
+  notify: 
+    - activate apache module
+    - restart apache
+
+- name: Ensure apache modules are active 
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - headers
+    - proxy_fcgi
+    - proxy_http
+    - rewrite
+    - ssl
+
+  notify:
+    - restart apache
+  
+- name: Ensure apache config is available
+  template:
+    src: "{{ item }}.conf.j2"
+    dest: "/etc/apache2/sites-available/{{ item }}.conf"
+    mode:  0644
+    owner: root
+    group: root
+    backup: true
+  register: sites_created
+  loop:
+#    - vhost
+    - frontend
+    - backend
+  notify:
+    - restart apache
+
+- name: Ensure apache config is active
+  file: 
+    src: "{{ item.dest }}"
+    dest: "/etc/apache2/sites-enabled/{{ item.item }}.conf"
+    owner: root
+    group: root
+    state: link
+  with_items: "{{ sites_created.results }}"
+  notify: 
+    - restart apache
+  
+
+

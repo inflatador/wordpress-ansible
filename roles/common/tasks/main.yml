@@ -1,0 +1,73 @@
+---
+
+- name: Ensure wordpress group exists
+  group:
+    name: "{{ wordpress_os_group}}"
+    state: present
+
+- name: Ensure wordpress user exists
+  user:
+    name: "{{ wordpress_os_user}}"
+    groups: "{{ wordpress_os_group | default(omit, true) }}"
+    password: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters,digits,hexdigits,punctuation')  | password_hash('sha512')}}"
+    update_password: on_create
+
+- name: set swap_file variable
+  set_fact:
+    swap_file: /root/.SWAPFILE_DO_NOT_DELETE
+    
+- name: check if swap file exists
+  stat:
+    path: "{{ swap_file }}"
+  register: swap_file_check
+
+- name: create 1GB swap file
+  command: fallocate -l 1G {{ swap_file }}
+  when: not swap_file_check.stat.exists
+
+- name: set permissions on swap file
+  file:
+    path: "{{ swap_file }}"
+    mode: 0600
+
+- name: format swap file
+  command: mkswap {{ swap_file }}
+  when: not swap_file_check.stat.exists
+
+- name: add swap to fstab
+  lineinfile:
+    dest: /etc/fstab
+    regexp: "{{ swap_file }}"
+    line: "{{ swap_file }} none swap sw 0 0"
+
+- name: turn on swap
+  command: swapon -a
+
+- name: Create sftp user home dir
+  file:
+    state: directory
+    path: "/var/www/vhosts/wordpress"
+    mode: 0751
+    owner: "{{ wordpress_os_user}}"
+    group: "{{ wordpress_os_group }}"
+    
+
+- name: Ensure sftp user exists
+  user:
+    name: sftp
+    password: "{{ lookup('password', '~/sftp_pass chars=ascii_letters,digits,hexdigits,punctuation')  | password_hash('sha512')}}"
+    shell: /usr/sbin/nologin
+    update_password: on_create
+    home: "/var/www/vhosts/wordpress"
+
+- name: Configure ssh daemon for sftp use
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart ssh daemon
+
+
+    

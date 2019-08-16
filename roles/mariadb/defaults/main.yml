@@ -1,0 +1,4 @@
+---
+
+innodb_buffer_pool_size: "{{ (ansible_memtotal_mb*0.25)|int|abs }}"
+mysql_system_tuning: True

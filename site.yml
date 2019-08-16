@@ -1,0 +1,15 @@
+---
+
+- name: apply common configuration to all nodes
+  hosts: all
+  become: yes
+  vars_files:
+    - defaults.yml
+
+  roles:
+    - common
+    - mariadb
+#    - redis
+#    - php-fpm
+#    - apache
+#    - iptables
