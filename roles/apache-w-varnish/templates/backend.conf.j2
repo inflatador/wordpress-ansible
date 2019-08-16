@@ -5,12 +5,12 @@ Listen 8080
 <VirtualHost *:8080>
     ServerName {{ my_pub_ip4 }}
     ErrorLog {{ apache_log_path }}/{{ domain}}-backend-error.log
-    CustomLog {{ apache_log_path }}/magento-backend-access.log combined
+    CustomLog {{ apache_log_path }}/wordpress-backend-access.log combined
     SetEnvIf X-Forwarded-Proto https HTTPS=on
 
-    DocumentRoot /var/www/vhosts/magento
+    DocumentRoot /var/www/vhosts/wordpress
 
-    <Directory /var/www/vhosts/magento>
+    <Directory /var/www/vhosts/wordpress>
         AllowOverride All
         Options -Indexes +FollowSymLinks
         Require all granted

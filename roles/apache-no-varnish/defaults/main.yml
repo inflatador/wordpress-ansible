@@ -52,7 +52,7 @@ apache_vhosts:
     proxypass: "/blog/ http://127.0.0.1:6081/"
     phpfpm: "default"
 
-domain: "mage2.rackesc.net"
+domain: "wordpress.example.com"
 
 https_ports:
   - 443

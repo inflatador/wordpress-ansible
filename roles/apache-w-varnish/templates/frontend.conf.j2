@@ -5,8 +5,8 @@
 <VirtualHost *:80>
     ServerName {{ my_pub_ip4 }}
     ServerAlias {{ my_pub_ip6 }}
-    ErrorLog {{ apache_log_path }}/magento-frontend-error.log
-    CustomLog {{ apache_log_path }}/magento-frontend-access.log combined
+    ErrorLog {{ apache_log_path }}/wordpress-frontend-error.log
+    CustomLog {{ apache_log_path }}/wordpress-frontend-access.log combined
 
     SetEnvIf X-Forwarded-Proto https HTTPS=on
 
@@ -22,12 +22,12 @@
 <VirtualHost *:443>
     ServerName {{ my_pub_ip4 }}
     ServerAlias {{ my_pub_ip6 }}
-    ErrorLog {{ apache_log_path }}/magento-frontend-error.log
-    CustomLog {{ apache_log_path }}/magento-frontend-access.log combined
+    ErrorLog {{ apache_log_path }}/wordpress-frontend-error.log
+    CustomLog {{ apache_log_path }}/wordpress-frontend-access.log combined
 
     SSLEngine On
-    SSLCertificateFile {{ ssl_cert_path }}/magento.crt
-    SSLCertificateKeyFile {{ ssl_key_path }}/magento.key
+    SSLCertificateFile {{ ssl_cert_path }}/wordpress.crt
+    SSLCertificateKeyFile {{ ssl_key_path }}/wordpress.key
 
     #comment
 

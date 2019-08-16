@@ -33,6 +33,6 @@ redis_save:
   - 300 10
   - 60 10000
 
-redis_maxmemory: "{{ (ansible_memtotal_mb*0.15)|int|abs }}"
+redis_maxmemory: "{{ (ansible_memtotal_mb*0.10)|int|abs }}"
 redis_maxmemory_policy: "allkeys-lfu"
 redis_maxmemory_samples: 5

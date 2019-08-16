@@ -10,6 +10,6 @@
     - common
     - mariadb
     - redis
-#    - php-fpm
+    - php-fpm
 #    - apache
 #    - iptables
