@@ -9,7 +9,7 @@
   roles:
     - common
     - mariadb
-#    - redis
+    - redis
 #    - php-fpm
 #    - apache
 #    - iptables

@@ -60,6 +60,20 @@
     update_password: on_create
     home: "/var/www/vhosts/wordpress"
 
+- name: Ensure sftp user has access to wordpress dirs
+  acl:
+    path: '/var/www/vhosts/wordpress'
+    entity: sftp
+    etype: user
+    permissions: rwx
+    default: "{{ item }}"
+    state: present
+    recursive: yes
+  loop:
+    - yes
+    - no
+
+
 - name: Configure ssh daemon for sftp use
   template:
     src: sshd_config.j2

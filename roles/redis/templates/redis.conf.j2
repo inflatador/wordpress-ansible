@@ -2,7 +2,7 @@
 
 ### begin dynamic config
 maxclients {{ redis_maxclients }}
-maxmemory {{ redis_maxmemory }}
+maxmemory {{ redis_maxmemory }}mb
 maxmemory-policy {{ redis_maxmemory_policy }}
 maxmemory-samples {{ redis_maxmemory_samples }}
 {% if redis_save %}
@@ -79,3 +79,5 @@ client-output-buffer-limit slave 256mb 64mb 60
 client-output-buffer-limit pubsub 32mb 8mb 60
 hz 10
 aof-rewrite-incremental-fsync yes
+lfu-log-factor 10
+lfu-decay-time 1
