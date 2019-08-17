@@ -24,6 +24,13 @@
     privatekey_path: "/etc/ssl/private/wordpress.key"
     provider: selfsigned
     csr_path: "/etc/ssl/certs/wordpress.csr"
+
+- name: Ensure default site is disabled
+  file:
+    src: "/etc/apache2/sites-available/000-default.conf"
+    dest: "/etc/apache2/sites-enabled/000-default.conf"
+    state: absent
+  notify: restart apache
   
 - name: Ensure apache configs are active
   template:
@@ -66,9 +73,7 @@
     - proxy_http
     - rewrite
     - ssl
-
-  notify:
-    - restart apache
+  notify: restart apache
   
 - name: Ensure apache config is available
   template:
@@ -81,8 +86,7 @@
   register: sites_created
   loop:
     - frontend
-  notify:
-    - restart apache
+  notify: restart apache
 
 - name: Ensure apache config is active
   file: 
@@ -92,13 +96,5 @@
     group: root
     state: link
   with_items: "{{ sites_created.results }}"
-  notify: 
-    - restart apache
+  notify: restart apache
   
-- name: Ensure default site is disabled
-  file:
-    src: "/etc/apache2/sites-available/000-default.conf"
-    dest: "/etc/apache2/sites-enabled/000-default.conf"
-    state: absent
-  notify:
-    - restart apache

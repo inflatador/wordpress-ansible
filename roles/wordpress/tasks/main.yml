@@ -20,7 +20,13 @@
   ignore_errors: yes
 
 - name: install wp-cli
-  command: 'wget -O /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x /usr/local/bin/wp'
+#  command: 'wget -O /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x /usr/local/bin/wp'
+  get_url:
+    url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    dest: /usr/local/bin/wp
+    mode: '0777'
+    owner: root
+    group: root
   when: wpcli_installed is failed
 
 - name: check whether wordpress has been downloaded
