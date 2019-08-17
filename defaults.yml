@@ -12,6 +12,7 @@ wordpress_db_user: "{{ wordpress_os_user }}"
 wordpress_db_pass: ""
 wordpress_db_name: "{{ wordpress_os_user }}_db"
 wordpress_db_host: "localhost"
+wordpress_path: "/var/www/vhosts/wordpress"
 
 my_pub_ip4: "{{ ansible_default_ipv4.address }}"
 my_pub_ip6: "{{ ansible_default_ipv6.address }}"

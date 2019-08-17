@@ -1,0 +1,52 @@
+---
+
+- name: Ensure wordpresses dependencies are installed
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+     - php-zip
+     - php-mysql
+  notify: 
+    - reload apache
+
+- name: Assign random password for wordpress admin user
+  set_fact:
+    wordpress_admin_password: "{{ lookup('password', '~/wordpress_admin_password length=24')}}"
+
+- name: check if wp-cli has been installed
+  command: 'stat /usr/local/bin/wp'
+  register: wpcli_installed
+  ignore_errors: yes
+
+- name: install wp-cli
+  command: 'wget -O /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; chmod +x /usr/local/bin/wp'
+  when: wpcli_installed is failed
+
+- name: check whether wordpress has been downloaded
+  command: 'stat /var/www/vhosts/wordpress/wp-settings.php'
+  register: wp_installed
+  ignore_errors: yes
+  
+- name: install wp core
+  command: "{{ item }}"
+  when: wp_installed is failed
+  loop:
+    - "wp core download --allow-root --path={{ wordpress_path }}"
+    - >
+      wp config create --allow-root --dbname={{ wordpress_db_name }}  --dbuser={{ wordpress_db_user }}
+      --dbpass={{ wordpress_db_password }} --path={{ wordpress_path }}
+    - >
+      wp core install --allow-root --url={{ my_pub_ip4 }} --title="Wordpress SpinUp"
+      --admin_user=wpadmin --admin_password={{ wordpress_admin_password }}
+      --admin_email=none@example.com  --path={{ wordpress_path }}
+      
+
+- name: Ensure web directories have correct owner, group, and mode
+  file:
+    state: directory
+    recurse: yes
+    owner: "{{ wordpress_os_user }}"
+    group: "{{ wordpress_os_group }}"
+    path: "{{ wordpress_path }}"
+    mode: 'u=rwX,g=rwX,o=X'

@@ -10,16 +10,18 @@
 
     SetEnvIf X-Forwarded-Proto https HTTPS=on
 
-    #comment
+    <FilesMatch ".+\.ph(ar|p|tml)$">
+    SetHandler "proxy:unix:/run/php/php7.2-fpm.sock|fcgi://localhost"
+    </FilesMatch>
 
-#  ProxyPass will default add `X-Forwarded-For`, `X-Forwarded-Host` and `X-Forwarded-Server`
-#     ProxyPreserveHost On
-#     ProxyPass / http://127.0.0.1:6081/
-#     ProxyPassReverse / http://127.0.0.1:6081/
+    DocumentRoot /var/www/vhosts/wordpress
 
-<FilesMatch ".+\.ph(ar|p|tml)$">
-SetHandler "proxy:unix:/run/php/php7.2-fpm.sock|fcgi://localhost"
-</FilesMatch>
+    <Directory /var/www/vhosts/wordpress>
+        AllowOverride All
+        Options -Indexes +FollowSymLinks
+        Require all granted
+    </Directory>
+
 
 </VirtualHost>
 
@@ -41,12 +43,17 @@ SetHandler "proxy:unix:/run/php/php7.2-fpm.sock|fcgi://localhost"
 
     RequestHeader set X-Forwarded-Proto https
     RequestHeader set X-Forwarded-Port 443
-#   ProxyPreserveHost On
-#   ProxyPass / http://127.0.0.1:6081/
-#   ProxyPassReverse / http://127.0.0.1:6081/
 
-<FilesMatch ".+\.ph(ar|p|tml)$">
-SetHandler "proxy:unix:/run/php/php7.2-fpm.sock|fcgi://localhost"
-</FilesMatch>
+    <FilesMatch ".+\.ph(ar|p|tml)$">
+    SetHandler "proxy:unix:/run/php/php7.2-fpm.sock|fcgi://localhost"
+    </FilesMatch>
+
+    DocumentRoot /var/www/vhosts/wordpress
+
+    <Directory /var/www/vhosts/wordpress>
+        AllowOverride All
+        Options -Indexes +FollowSymLinks
+        Require all granted
+    </Directory>
 
 </VirtualHost>

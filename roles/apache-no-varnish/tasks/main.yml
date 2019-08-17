@@ -80,9 +80,7 @@
     backup: true
   register: sites_created
   loop:
-#    - vhost
     - frontend
-    - backend
   notify:
     - restart apache
 
@@ -97,5 +95,10 @@
   notify: 
     - restart apache
   
-
-
+- name: Ensure default site is disabled
+  file:
+    src: "/etc/apache2/sites-available/000-default.conf"
+    dest: "/etc/apache2/sites-enabled/000-default.conf"
+    state: absent
+  notify:
+    - restart apache
