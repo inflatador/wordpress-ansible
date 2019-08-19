@@ -1,12 +1,13 @@
 ---
 
-- name: Ensure wordpresses dependencies are installed
+- name: Ensure wordpress dependencies are installed
   package:
     name: "{{ item }}"
     state: present
   loop:
      - php-zip
      - php-mysql
+     - php-redis
   notify: 
     - reload apache
 
@@ -46,8 +47,25 @@
       wp core install --allow-root --url={{ my_pub_ip4 }} --title="Wordpress SpinUp"
       --admin_user=wpadmin --admin_password={{ wordpress_admin_password }}
       --admin_email=none@example.com  --path={{ wordpress_path }}
-      
-
+  
+- name: check for wp-redis plugin installation
+  command: "wp plugin list --allow-root | grep wp-redis"
+  register: wpredis_installed
+  ignore_errors: yes
+  
+- name: download and install wp_redis plugin
+  git: 
+    repo: "https://github.com/pantheon-systems/wp-redis"
+    dest: "{{ wordpress_path }}/wp-content/plugins/wp-redis"
+  when: wpredis_installed is failed
+  
+- name: activate wp_redis plugin
+  command: "{{ item }}"
+  when: wpredis_installed is failed
+  loop:
+    - "wp plugin activate --allow-root wp-redis --path={{ wordpress_path }}"
+    - "wp redis enable --allow-root --path={{ wordpress_path }}"
+  
 - name: Ensure web directories have correct owner, group, and mode
   file:
     state: directory
@@ -56,3 +74,9 @@
     group: "{{ wordpress_os_group }}"
     path: "{{ wordpress_path }}"
     mode: 'u=rwX,g=rwX,o=X'
+    
+  
+  
+  
+  
+  
