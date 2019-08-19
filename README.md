@@ -1,4 +1,4 @@
-# Magento2.x CE Ansible Playbook
+# Wordpress Ansible Playbook
 
 Initial goals:
 - Single server
